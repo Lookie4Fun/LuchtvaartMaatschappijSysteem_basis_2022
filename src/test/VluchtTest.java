@@ -19,7 +19,7 @@ public class VluchtTest {
 	static Fabrikant f1;
 	static VliegtuigType vtt1;
 	static Vliegtuig vt1;
-	static Luchthaven lh1, lh2, lh3;
+	static Luchthaven lh1, lh2, lh3, lh4;
 	static Vlucht vl1, vl2;
 
 	LocalDate currentdate = LocalDate.now();
@@ -46,9 +46,11 @@ public class VluchtTest {
 			Land l1 = new Land("Nederland", 31);
 			Land l2 = new Land("België", 32);
 			Land l3 = new Land("Duitsland", 33);
+			Land l4 = new Land("Frankrijk", 34);
 			lh1 = new Luchthaven("Schiphol", "ASD", true, l1);
 			lh2 = new Luchthaven("Tegel", "TEG", true, l2);
 			lh3 = new Luchthaven("Bonn ", "Dop", true, l3);
+			lh4 = new Luchthaven("Charles de Gaule","CHGA",true,l4);
 			Calendar vertr = Calendar.getInstance();
 			vertr.set(2020, 03, 30, 14, 15, 0);
 			Calendar aank = Calendar.getInstance();
@@ -206,6 +208,121 @@ public class VluchtTest {
 			if(vlucht.getAankomstTijd() == null){
 				System.out.println("tijd in het verleden");
 			}
+		}
+	}
+
+	@Test
+	public void test8VertrekTijdEnAankomstTijdMagNietInHetVerledenLiggenEnAankomstMoetInDeToekomstLiggen_True(){
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		Vlucht vlucht = new Vlucht();
+		vertr.set(jaar, maand, dag, uur, min-1, sec);
+		aank.set(jaar,maand,dag,uur,min+1, sec);
+		try {
+			vlucht.zetVliegtuig(vt1);
+			vlucht.zetVertrekpunt(lh3);
+			vlucht.zetBestemming(lh1);
+			vlucht.zetVertrekTijd(vertr);
+			assertTrue(vlucht.getVertrekTijd().equals(vertr));
+			vlucht.zetAankomstTijd(aank);
+			assertTrue(vlucht.getAankomstTijd().equals(aank));
+			System.out.println("Vertrektijd succesvol ingevoerd");
+		} catch (Exception e) {
+			System.out.println("Tijd in het verleden");
+			assertTrue(vlucht.getVertrekTijd()==null);
+
+		}
+	}
+
+	@Test
+	public void test9VertrekTijdMagNietGroterZijnDanAankomstTijd(){
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		Vlucht vlucht = new Vlucht();
+		vertr.set(jaar, maand, dag, uur, min+1, sec);
+		aank.set(jaar,maand,dag,uur,min, sec);
+		try {
+			vlucht.zetVliegtuig(vt1);
+			vlucht.zetVertrekpunt(lh3);
+			vlucht.zetBestemming(lh1);
+			vlucht.zetVertrekTijd(vertr);
+			assertEquals(vlucht.getVertrekTijd(), vertr);
+			vlucht.zetAankomstTijd(aank);
+			assertEquals(vlucht.getAankomstTijd(), aank);
+			System.out.println("Vertrektijd succesvol ingevoerd");
+		} catch (Exception e) {
+			System.out.println(e);
+			assertTrue(vertr.after(aank));
+		}
+	}
+
+	@Test
+	public void test10VertrekTijdMagNietGroterZijnDanAankomstTijd(){
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		Vlucht vlucht = new Vlucht();
+		vertr.set(jaar, maand, dag, uur, min, sec);
+		aank.set(jaar,maand,dag,uur,min+1, sec);
+		try {
+			vlucht.zetVliegtuig(vt1);
+			vlucht.zetVertrekpunt(lh3);
+			vlucht.zetBestemming(lh1);
+			vlucht.zetVertrekTijd(vertr);
+			assertEquals(vlucht.getVertrekTijd(), vertr);
+			vlucht.zetAankomstTijd(aank);
+			assertEquals(vlucht.getAankomstTijd(), aank);
+			System.out.println("Vertrektijd succesvol ingevoerd");
+		} catch (Exception e) {
+			System.out.println(e);
+			assertTrue(vertr.after(aank));
+		}
+	}
+
+	@Test
+	public void test11VluchtenMogenNietOverlappen(){
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		vertr.set(2025, 7, 1, 12, 43, 0);
+		aank.set(2025,7,1,15,36, 0);
+		Vlucht vlucht1 = new Vlucht(vt1,lh1,lh4,vertr,aank);
+		Vlucht vlucht = new Vlucht();
+		vertr.set(2025, 7, 1, 15, 35, 0);
+		aank.set(2025,7,1,16,36, 0);
+		try {
+			vlucht.zetVliegtuig(vt1);
+			vlucht.zetVertrekpunt(lh3);
+			vlucht.zetBestemming(lh1);
+			vlucht.zetVertrekTijd(vertr);
+			assertEquals(vlucht.getVertrekTijd(), vertr);
+			vlucht.zetAankomstTijd(aank);
+			assertEquals(vlucht.getAankomstTijd(), aank);
+			System.out.println("Vertrektijd succesvol ingevoerd");
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	@Test
+	public void test12VluchtenMogenNietOverlappen() {
+		Calendar vertr = Calendar.getInstance();
+		Calendar aank = Calendar.getInstance();
+		vertr.set(2025, 7, 1, 12, 43, 0);
+		aank.set(2025,7,1,15,36, 0);
+		Vlucht vlucht1 = new Vlucht(vt1,lh1,lh4,vertr,aank);
+		Vlucht vlucht = new Vlucht();
+		vertr.set(2025, 7, 1, 11, 36, 0);
+		aank.set(2025,7,1,12,44, 0);
+		try {
+			vlucht.zetVliegtuig(vt1);
+			vlucht.zetVertrekpunt(lh3);
+			vlucht.zetBestemming(lh1);
+			vlucht.zetVertrekTijd(vertr);
+			assertEquals(vlucht.getVertrekTijd(), vertr);
+			vlucht.zetAankomstTijd(aank);
+			assertEquals(vlucht.getAankomstTijd(), aank);
+			System.out.println("Vertrektijd succesvol ingevoerd");
+		} catch (Exception e) {
+			System.out.println(e);
 		}
 	}
 }
